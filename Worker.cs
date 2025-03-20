@@ -9,22 +9,25 @@ namespace ServiceWorker;
 public class Worker : BackgroundService
 {
     private readonly ILogger<Worker> _logger;
+    private readonly IConfiguration _configuration;
 
-    public Worker(ILogger<Worker> logger)
+    public Worker(ILogger<Worker> logger, IConfiguration configuration)
     {
         _logger = logger;
+        _configuration = configuration;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Worker started");
-
+        var rabbitMQHost = _configuration["RABBITMQ_HOST"] ?? "hostname = not set";
+        _logger.LogInformation($"RabbitMQ host: {rabbitMQHost}");
         try
         {
             // Opret forbindelse og kanal med korrekt konfiguration
             var factory = new ConnectionFactory
             {
-                HostName = "localhost",  // miljøvariable
+                HostName = rabbitMQHost,  // miljøvariable
                 Port = 5672,  // Default port for RabbitMQ
                 UserName = "guest",  // Default RabbitMQ brugernavn
                 Password = "guest"   // Default RabbitMQ password
