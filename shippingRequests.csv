@@ -1,0 +1,4 @@
+CustomerName,PickupAddress,PackageId,DeliveryAddress,Date
+John Doe,123 Main St,4e6915ce-0272-4099-8149-c2fd40312c5d,456 Elm St,2025-03-20
+Jane Smith,789 Oak St,49aabe70-9432-4f80-9862-19ab9aa09bcf,101 Pine St,2025-03-20
+Bob Johnson,234 Maple St,df6d8335-b51c-4736-ba6c-3a551c47c8b5,567 Birch St,2025-03-20
