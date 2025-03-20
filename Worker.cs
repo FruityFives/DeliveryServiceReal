@@ -21,10 +21,9 @@ public class Worker : BackgroundService
 
         try
         {
-            // Opret forbindelse og kanal med korrekt konfiguration
             var factory = new ConnectionFactory
             {
-                HostName = "localhost",  // miljøvariable
+                HostName = "localhost",  // miljøvariable skal angives her
                 Port = 5672,  // Default port for RabbitMQ
                 UserName = "guest",  // Default RabbitMQ brugernavn
                 Password = "guest"   // Default RabbitMQ password

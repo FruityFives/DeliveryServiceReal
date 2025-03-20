@@ -8,16 +8,6 @@ services:
     networks:
       - backend
 
-  shippingservice:
-    image: shippingservice:latest
-    container_name: shippingservice
-    environment:
-      - RABBITMQ_HOST=rabbitmq
-    depends_on:
-      - rabbitmq
-    networks:
-      - backend
-
   workerservice:
     image: workerservice:latest
     container_name: workerservice
