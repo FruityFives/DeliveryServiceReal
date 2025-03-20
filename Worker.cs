@@ -20,7 +20,7 @@ public class Worker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Worker started");
-        var rabbitMQHost = _configuration["RABBITMQ_HOST"] ?? "hostname = not set";
+        var rabbitMQHost = _configuration["RABBITMQ_HOST"] ?? "host = not set";
         _logger.LogInformation($"RabbitMQ host: {rabbitMQHost}");
         try
         {
@@ -47,7 +47,28 @@ public class Worker : BackgroundService
                 _logger.LogInformation($" [x] Received {message}");
 
                 var shippingRequest = JsonSerializer.Deserialize<ShippingrequestDTO>(message);
-                ProcessShippingRequest(shippingRequest);
+                if (shippingRequest != null)
+                {
+                    _logger.LogInformation($"Deserialized request: {JsonSerializer.Serialize(shippingRequest)}");
+                    string csvFilePath = "shippingRequests.csv";
+                    
+                    using (var writer = new StreamWriter(csvFilePath, append: true))
+                    {
+                        // Ensure all fields are populated
+                        string customerName = string.IsNullOrEmpty(shippingRequest.CustomerName) ? "N/A" : shippingRequest.CustomerName;
+                        string pickupAddress = string.IsNullOrEmpty(shippingRequest.PickupAddress) ? "N/A" : shippingRequest.PickupAddress;
+                        string deliveryAddress = string.IsNullOrEmpty(shippingRequest.DeliveryAddress) ? "N/A" : shippingRequest.DeliveryAddress;
+                        string date = string.IsNullOrEmpty(shippingRequest.Date) ? DateTime.Now.ToString("yyyy-MM-dd") : shippingRequest.Date;
+
+                        string line = $"{customerName},{pickupAddress},{shippingRequest.PackageId},{deliveryAddress},{date}";
+                        writer.WriteLine(line);
+                    }
+                  //  ProcessShippingRequest(shippingRequest);
+                }
+                else
+                {
+                    _logger.LogError("Failed to deserialize the message into ShippingrequestDTO");
+                }
 
                 await Task.CompletedTask;
             };
@@ -66,14 +87,21 @@ public class Worker : BackgroundService
 
         _logger.LogInformation("Worker stopped");
     }
-
+/*
     private void ProcessShippingRequest(ShippingrequestDTO request)
     {
         string csvFilePath = "shippingRequests.csv";
         using (var writer = new StreamWriter(csvFilePath, append: true))
         {
-            string line = $"{request.CustomerName},{request.PickupAddress},{request.PackageId},{request.DeliveryAddress},{request.Date}";
+            // Ensure all fields are populated
+            string customerName = string.IsNullOrEmpty(request.CustomerName) ? "N/A" : request.CustomerName;
+            string pickupAddress = string.IsNullOrEmpty(request.PickupAddress) ? "N/A" : request.PickupAddress;
+            string deliveryAddress = string.IsNullOrEmpty(request.DeliveryAddress) ? "N/A" : request.DeliveryAddress;
+            string date = string.IsNullOrEmpty(request.Date) ? DateTime.Now.ToString("yyyy-MM-dd") : request.Date;
+
+            string line = $"{customerName},{pickupAddress},{request.PackageId},{deliveryAddress},{date}";
             writer.WriteLine(line);
         }
+        */
     }
-}
+    
