@@ -50,7 +50,7 @@ public class Worker : BackgroundService
                 if (shippingRequest != null)
                 {
                     _logger.LogInformation($"Deserialized request: {JsonSerializer.Serialize(shippingRequest)}");
-                    string csvFilePath = "shippingRequests.csv";
+                    string csvFilePath = "/app/data/shippingRequests.csv";
                     
                     using (var writer = new StreamWriter(csvFilePath, append: true))
                     {

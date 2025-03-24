@@ -21,6 +21,8 @@ services:
     networks:
       - backend
     restart: always
+    volumes:
+      - shippingdata/:/app/data
 
 networks:
   backend:
