@@ -3,16 +3,14 @@ services:
     image: rabbitmq:management
     container_name: rabbitmq
     ports:
-      - "5672:5672"  # RabbitMQ default port
-      - "15672:15672"  # RabbitMQ management UI
+      - "5672:5672"
+      - "15672:15672"
     networks:
       - backend
+    restart: always
 
   workerservice:
-    image: workerservice:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: hudz3103/deliveryservice-image # Docker Hub image
     container_name: workerservice
     environment:
       - RABBITMQ_HOST=rabbitmq
@@ -22,8 +20,27 @@ services:
       - backend
     restart: always
     volumes:
-      - shippingdata/:/app/data
+      - shippingdata:/app/data
+
+  shipmentdelivery:
+    image: jabir8210/shipping-service-image # Docker Hub image
+    container_name: shipmentdelivery
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - ASPNETCORE_URLS=http://+:5000
+    ports:
+      - "5000:5000"
+    networks:
+      - backend
+    restart: always
+    volumes:
+      - shippingdata:/app/data
 
 networks:
   backend:
     driver: bridge
+
+volumes:
+  shippingdata:
