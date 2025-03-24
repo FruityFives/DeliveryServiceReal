@@ -1,0 +1,27 @@
+services:
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"  # RabbitMQ default port
+      - "15672:15672"  # RabbitMQ management UI
+    networks:
+      - backend
+
+  workerservice:
+    image: workerservice:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: workerservice
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - rabbitmq
+    networks:
+      - backend
+    restart: always
+
+networks:
+  backend:
+    driver: bridge
