@@ -24,13 +24,12 @@ public class Worker : BackgroundService
         _logger.LogInformation($"RabbitMQ host: {rabbitMQHost}");
         try
         {
-            // Opret forbindelse og kanal med korrekt konfiguration
             var factory = new ConnectionFactory
             {
-                HostName = rabbitMQHost,  // miljøvariable
-                Port = 5672,  // Default port for RabbitMQ
-                UserName = "guest",  // Default RabbitMQ brugernavn
-                Password = "guest"   // Default RabbitMQ password
+                HostName = rabbitMQHost,
+                Port = 5672,
+                UserName = "guest",
+                Password = "guest"
             };
             using var connection = await factory.CreateConnectionAsync();
             using var channel = await connection.CreateChannelAsync();
@@ -50,11 +49,19 @@ public class Worker : BackgroundService
                 if (shippingRequest != null)
                 {
                     _logger.LogInformation($"Deserialized request: {JsonSerializer.Serialize(shippingRequest)}");
+
                     string csvFilePath = "/app/data/shippingRequests.csv";
-                    
+                    bool fileExists = File.Exists(csvFilePath);
+
                     using (var writer = new StreamWriter(csvFilePath, append: true))
                     {
-                        // Ensure all fields are populated
+                        if (!fileExists)
+                        {
+                            // Tilføj header kun første gang
+                            writer.WriteLine("CustomerName,PickupAddress,PackageId,DeliveryAddress,Date");
+                        }
+
+                        // Sikr at alle felter er sat
                         string customerName = string.IsNullOrEmpty(shippingRequest.CustomerName) ? "N/A" : shippingRequest.CustomerName;
                         string pickupAddress = string.IsNullOrEmpty(shippingRequest.PickupAddress) ? "N/A" : shippingRequest.PickupAddress;
                         string deliveryAddress = string.IsNullOrEmpty(shippingRequest.DeliveryAddress) ? "N/A" : shippingRequest.DeliveryAddress;
@@ -63,7 +70,6 @@ public class Worker : BackgroundService
                         string line = $"{customerName},{pickupAddress},{shippingRequest.PackageId},{deliveryAddress},{date}";
                         writer.WriteLine(line);
                     }
-                  //  ProcessShippingRequest(shippingRequest);
                 }
                 else
                 {
@@ -87,21 +93,4 @@ public class Worker : BackgroundService
 
         _logger.LogInformation("Worker stopped");
     }
-/*
-    private void ProcessShippingRequest(ShippingrequestDTO request)
-    {
-        string csvFilePath = "shippingRequests.csv";
-        using (var writer = new StreamWriter(csvFilePath, append: true))
-        {
-            // Ensure all fields are populated
-            string customerName = string.IsNullOrEmpty(request.CustomerName) ? "N/A" : request.CustomerName;
-            string pickupAddress = string.IsNullOrEmpty(request.PickupAddress) ? "N/A" : request.PickupAddress;
-            string deliveryAddress = string.IsNullOrEmpty(request.DeliveryAddress) ? "N/A" : request.DeliveryAddress;
-            string date = string.IsNullOrEmpty(request.Date) ? DateTime.Now.ToString("yyyy-MM-dd") : request.Date;
-
-            string line = $"{customerName},{pickupAddress},{request.PackageId},{deliveryAddress},{date}";
-            writer.WriteLine(line);
-        }
-        */
-    }
-    
+}

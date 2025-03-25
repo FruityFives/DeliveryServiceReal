@@ -23,7 +23,7 @@ services:
       - shippingdata:/app/data
 
   shipmentdelivery:
-    image: jabir8210/shipping-service-image # Docker Hub image
+    image: jabir8210/shipping-serice-image1 # Docker Hub image
     container_name: shipmentdelivery
     depends_on:
       - rabbitmq
