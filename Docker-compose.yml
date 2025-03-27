@@ -10,7 +10,7 @@ services:
     restart: always
 
   workerservice:
-    image: hudz3103/deliveryservice-image # Docker Hub image
+    image: hudz3103/deliveryservice-image1 # Docker Hub image
     container_name: workerservice
     environment:
       - RABBITMQ_HOST=rabbitmq

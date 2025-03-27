@@ -58,7 +58,7 @@ public class Worker : BackgroundService
                         if (!fileExists)
                         {
                             // Tilføj header kun første gang
-                            writer.WriteLine("CustomerName,PickupAddress,PackageId,DeliveryAddress,Date");
+                            writer.WriteLine("CustomerName,PickupAddress,PackageId,DeliveryAddress,DeliveryDate");
                         }
 
                         // Sikr at alle felter er sat
