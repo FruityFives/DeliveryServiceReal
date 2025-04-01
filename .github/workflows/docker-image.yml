@@ -19,7 +19,7 @@ jobs:
 
     env:
       DOCKER_USER: ${{ secrets.DOCKER_USER }}
-      IMAGE_NAME: catalog-service
+      IMAGE_NAME: delivery-service
       IMAGE_VERSION: 1.0.1
 
     steps:
@@ -32,7 +32,7 @@ jobs:
           password: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Build the Docker image
-        run: docker build . -f DeliveryServiceReal/Dockerfile-t ${DOCKER_USER}/${IMAGE_NAME}:${IMAGE_VERSION}
+        run: docker build . -f ../DeliveryServiceReal/Dockerfile -t ${DOCKER_USER}/${IMAGE_NAME}:${IMAGE_VERSION}
 
       - name: Push Docker image to Docker Hub
         run: docker push ${DOCKER_USER}/${IMAGE_NAME}:${IMAGE_VERSION}
