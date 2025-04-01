@@ -39,9 +39,7 @@ jobs:
 
       - name: Build the Docker image
         run: |
-          docker build . \
-            -f DeliveryServiceReal/Dockerfile \
-            -t ${{ secrets.DOCKER_USER }}/${{ env.IMAGE_NAME }}:${{ steps.extract_version.outputs.version }}
+          docker build . -f DeliveryServiceReal/Dockerfile -t ${{ secrets.DOCKER_USER }}/${{ env.IMAGE_NAME }}:${{ steps.extract_version.outputs.version }}
 
       - name: Push Docker image to Docker Hub
         run: |
