@@ -18,7 +18,6 @@
       1.0.0 Updated with semantic versioning
       0.9.0 Dockerfile Service Added to App
     </Description>
-
   </PropertyGroup>
 
   <ItemGroup>
