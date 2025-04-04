@@ -12,8 +12,9 @@
 
     <AssemblyVersion>1.0.1.1</AssemblyVersion>
     <FileVersion>1.0.1.1</FileVersion>
-    <InformationalVersion>1.1.0</InformationalVersion>
+    <InformationalVersion>1.1.1</InformationalVersion>
     <Description>
+      1.1.1 Hudayfa leger med Nginx
       1.1.0 Nginx added
       1.0.0 Updated with semantic versioning
       0.9.0 Dockerfile Service Added to App

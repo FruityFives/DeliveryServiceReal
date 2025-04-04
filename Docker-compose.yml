@@ -24,7 +24,6 @@ services:
 
   shipmentdelivery:
     image: jabir8210/shipping-serice-image1
-    container_name: shipmentdelivery
     depends_on:
       - rabbitmq
     environment:
@@ -42,7 +41,7 @@ services:
     image: nginx:latest
     container_name: nginx
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./load-test-env/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - shipmentdelivery
     ports:
