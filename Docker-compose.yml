@@ -10,7 +10,7 @@ services:
     restart: always
 
   workerservice:
-    image: hudz3103/deliveryservice-image1 # Docker Hub image
+    image: hudz3103/deliveryservice-image1
     container_name: workerservice
     environment:
       - RABBITMQ_HOST=rabbitmq
@@ -23,20 +23,33 @@ services:
       - shippingdata:/app/data
 
   shipmentdelivery:
-    image: jabir8210/shipping-serice-image1 # Docker Hub image
+    image: jabir8210/shipping-serice-image1
     container_name: shipmentdelivery
     depends_on:
       - rabbitmq
     environment:
       - RABBITMQ_HOST=rabbitmq
       - ASPNETCORE_URLS=http://+:5000
-    ports:
-      - "5000:5000"
+    expose:
+      - "5000"
     networks:
       - backend
     restart: always
     volumes:
       - shippingdata:/app/data
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - shipmentdelivery
+    ports:
+      - "4000:4000"
+    networks:
+      - backend
+    restart: always
 
 networks:
   backend:

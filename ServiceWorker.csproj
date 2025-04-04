@@ -5,6 +5,19 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-ServiceWorker-d68cf0ff-b0e4-4696-9b9a-d669aae71b8f</UserSecretsId>
+
+    <Company>Handel og Vandel A/S</Company>
+    <Authors>Fruity</Authors>
+    <Copyright>2024 HTU Aps</Copyright>
+
+    <AssemblyVersion>1.0.1.1</AssemblyVersion>
+    <FileVersion>1.0.1.1</FileVersion>
+    <InformationalVersion>1.1.0</InformationalVersion>
+    <Description>
+      1.1.0 Nginx added
+      1.0.0 Updated with semantic versioning
+      0.9.0 Dockerfile Service Added to App
+    </Description>
   </PropertyGroup>
 
   <ItemGroup>

@@ -18,12 +18,18 @@ jobs:
       id-token: write
 
     env:
-      DOCKER_USER: ${{ secrets.DOCKER_USER }}
       IMAGE_NAME: delivery-service
-      IMAGE_VERSION: 1.0.1
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Extract version from .csproj
+        id: extract_version
+        run: |
+          VERSION=$(grep '<InformationalVersion>' ServiceWorker.csproj | sed -E 's/.*<InformationalVersion>(.*)<\/InformationalVersion>.*/\1/')
+          VERSION=${VERSION:-latest}
+          echo "VERSION=$VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -31,8 +37,11 @@ jobs:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Build the Docker image
-        run: docker build . -f ../DeliveryServiceReal/Dockerfile -t ${DOCKER_USER}/${IMAGE_NAME}:${IMAGE_VERSION}
+      - name: Build and push Docker image
+        run: |
+          VERSION=${{ steps.extract_version.outputs.version }}
+          IMAGE=${{ secrets.DOCKER_USER }}/${{ env.IMAGE_NAME }}:$VERSION
 
-      - name: Push Docker image to Docker Hub
-        run: docker push ${DOCKER_USER}/${IMAGE_NAME}:${IMAGE_VERSION}
+          echo "Bygger Docker image: $IMAGE"
+          docker build -f Dockerfile -t $IMAGE .
+          docker push $IMAGE
