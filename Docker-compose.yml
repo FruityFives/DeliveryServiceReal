@@ -23,12 +23,13 @@ services:
       - shippingdata:/app/data
 
   shipmentdelivery:
-    image: jabir8210/shipping-serice-image1
+    image: hudz3103/service-worker:latest
     depends_on:
       - rabbitmq
     environment:
       - RABBITMQ_HOST=rabbitmq
       - ASPNETCORE_URLS=http://+:5000
+      - ASPNETCORE_ENVIRONMENT=Development
     expose:
       - "5000"
     networks:
