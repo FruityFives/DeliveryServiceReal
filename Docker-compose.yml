@@ -23,7 +23,7 @@ services:
       - shippingdata:/app/data
 
   shipmentdelivery:
-    image: hudz3103/service-worker:latest
+    image: hudz3103/shipping-service:latest
     depends_on:
       - rabbitmq
     environment:
@@ -47,6 +47,25 @@ services:
       - shipmentdelivery
     ports:
       - "4000:4000"
+    networks:
+      - backend
+    restart: always
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - backend
+    restart: always
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
     networks:
       - backend
     restart: always
