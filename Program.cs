@@ -2,7 +2,7 @@ using NLog;
 using NLog.Web;
 using ServiceWorker;
 
-
+Console.WriteLine("PLEASE");
 
 
 var logger = LogManager.Setup().LoadConfigurationFromAppSettings()
