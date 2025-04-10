@@ -16,6 +16,7 @@ services:
       - RABBITMQ_HOST=rabbitmq
     depends_on:
       - rabbitmq
+      - mongodb
     networks:
       - backend
     restart: always
@@ -51,9 +52,21 @@ services:
       - backend
     restart: always
 
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongodata:/data/db
+    networks:
+      - backend
+    restart: always
+
 networks:
   backend:
     driver: bridge
 
 volumes:
   shippingdata:
+  mongodata:
