@@ -53,15 +53,15 @@ public class Worker : BackgroundService
                 {
                     var mongoClient = new MongoClient("mongodb://mongodb:27018");
                     var database = mongoClient.GetDatabase("ShippingDb");
-                    var collection = database.GetCollection<ShippingRequest>("ShippingRequests");
+                    var collection = database.GetCollection<ShippingrequestDTO>("ShippingRequests");
 
-                    var shippingRecord = new ShippingRequest
+                    var shippingRecord = new ShippingrequestDTO
                     {
                         CustomerName = string.IsNullOrEmpty(shippingRequest.CustomerName) ? "N/A" : shippingRequest.CustomerName,
                         PickupAddress = string.IsNullOrEmpty(shippingRequest.PickupAddress) ? "N/A" : shippingRequest.PickupAddress,
                         PackageId = shippingRequest.PackageId,
                         DeliveryAddress = string.IsNullOrEmpty(shippingRequest.DeliveryAddress) ? "N/A" : shippingRequest.DeliveryAddress,
-                        DeliveryDate = string.IsNullOrEmpty(shippingRequest.Date) ? DateTime.Now.ToString("yyyy-MM-dd") : shippingRequest.Date
+                        DeliveryDate = string.IsNullOrEmpty(shippingRequest.DeliveryDate) ? DateTime.Now.ToString("yyyy-MM-dd") : shippingRequest.DeliveryDate
                     };
 
                     await collection.InsertOneAsync(shippingRecord);

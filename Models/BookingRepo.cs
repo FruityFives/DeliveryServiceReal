@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-
+/*
 namespace WorkerService.Models
 {
     public class BookingRepository
@@ -18,3 +18,4 @@ namespace WorkerService.Models
         }
     }
 }
+*/
