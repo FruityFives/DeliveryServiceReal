@@ -21,8 +21,7 @@ jobs:
       IMAGE_NAME: delivery-service
 
     steps:
-      - name: Checkout kode
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Extract version from .csproj
         id: extract_version
@@ -41,14 +40,8 @@ jobs:
       - name: Build and push Docker image
         run: |
           VERSION=${{ steps.extract_version.outputs.version }}
-          IMAGE=${{ secrets.DOCKER_USER }}/${{ env.IMAGE_NAME }}
+          IMAGE=${{ secrets.DOCKER_USER }}/${{ env.IMAGE_NAME }}:$VERSION
 
-          echo "Bygger Docker image: $IMAGE:$VERSION"
-          docker build -f Dockerfile -t $IMAGE:$VERSION .
-
-          echo "Pusher versionstagget image"
-          docker push $IMAGE:$VERSION
-
-          echo "Tagger og pusher også som :latest"
-          docker tag $IMAGE:$VERSION $IMAGE:latest
-          docker push $IMAGE:latest
+          echo "Bygger Docker image: $IMAGE"
+          docker build -f Dockerfile -t $IMAGE .
+          docker push $IMAGE
