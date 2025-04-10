@@ -21,11 +21,9 @@ jobs:
       IMAGE_NAME: delivery-service
 
     steps:
-      # 📦 Henter projektets kode
       - name: Checkout kode
         uses: actions/checkout@v4
 
-      # 🏷️ Udtrækker versionen fra .csproj-filen
       - name: Extract version from .csproj
         id: extract_version
         run: |
@@ -34,19 +32,23 @@ jobs:
           echo "VERSION=$VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      # 🔐 Logger ind på Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      # 🛠️ Bygger og pusher Docker image med version-tag
       - name: Build and push Docker image
         run: |
           VERSION=${{ steps.extract_version.outputs.version }}
-          IMAGE=${{ secrets.DOCKER_USER }}/${{ env.IMAGE_NAME }}:$VERSION
+          IMAGE=${{ secrets.DOCKER_USER }}/${{ env.IMAGE_NAME }}
 
-          echo "Bygger Docker image: $IMAGE"
-          docker build -f Dockerfile -t $IMAGE .
-          docker push $IMAGE
+          echo "Bygger Docker image: $IMAGE:$VERSION"
+          docker build -f Dockerfile -t $IMAGE:$VERSION .
+
+          echo "Pusher versionstagget image"
+          docker push $IMAGE:$VERSION
+
+          echo "Tagger og pusher også som :latest"
+          docker tag $IMAGE:$VERSION $IMAGE:latest
+          docker push $IMAGE:latest
