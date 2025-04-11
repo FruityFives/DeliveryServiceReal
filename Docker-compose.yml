@@ -10,10 +10,7 @@ services:
     restart: always
 
   workerservice:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: workerservice
+    image: hudz3103/delivery-service:latest
     environment:
       - RABBITMQ_HOST=rabbitmq
       - MongoDB_HOST=mongodb://mongodb:27017
