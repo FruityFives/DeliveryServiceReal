@@ -2,12 +2,17 @@ using NLog;
 using NLog.Web;
 using ServiceWorker;
 
+Console.WriteLine("PLEASE");
+
+
 var logger = LogManager.Setup().LoadConfigurationFromAppSettings()
     .GetCurrentClassLogger();
 
 try
 {
     logger.Debug("Start min service");
+    logger.Info("DeliveryService started"); // dette vises både i logfil og evt. Grafana
+
 
     IHost host = Host.CreateDefaultBuilder(args)
         .ConfigureServices(services =>

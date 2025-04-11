@@ -3,6 +3,7 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
 using System.Text.Json;
+using MongoDB.Driver;
 
 namespace ServiceWorker;
 
@@ -20,8 +21,9 @@ public class Worker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Worker started");
-        var rabbitMQHost = _configuration["RABBITMQ_HOST"] ?? "host = not set";
+        var rabbitMQHost = _configuration["RABBITMQ_HOST"] ?? "host not set";
         _logger.LogInformation($"RabbitMQ host: {rabbitMQHost}");
+
         try
         {
             var factory = new ConnectionFactory
@@ -31,6 +33,7 @@ public class Worker : BackgroundService
                 UserName = "guest",
                 Password = "guest"
             };
+
             using var connection = await factory.CreateConnectionAsync();
             using var channel = await connection.CreateChannelAsync();
 
@@ -48,28 +51,21 @@ public class Worker : BackgroundService
                 var shippingRequest = JsonSerializer.Deserialize<ShippingrequestDTO>(message);
                 if (shippingRequest != null)
                 {
-                    _logger.LogInformation($"Deserialized request: {JsonSerializer.Serialize(shippingRequest)}");
+                    var mongoClient = new MongoClient("mongodb://mongodb:27018");
+                    var database = mongoClient.GetDatabase("ShippingDb");
+                    var collection = database.GetCollection<ShippingrequestDTO>("ShippingRequests");
 
-                    string csvFilePath = "/app/data/shippingRequests.csv";
-                    bool fileExists = File.Exists(csvFilePath);
-
-                    using (var writer = new StreamWriter(csvFilePath, append: true))
+                    var shippingRecord = new ShippingrequestDTO
                     {
-                        if (!fileExists)
-                        {
-                            // Tilføj header kun første gang
-                            writer.WriteLine("CustomerName,PickupAddress,PackageId,DeliveryAddress,DeliveryDate");
-                        }
+                        CustomerName = string.IsNullOrEmpty(shippingRequest.CustomerName) ? "N/A" : shippingRequest.CustomerName,
+                        PickupAddress = string.IsNullOrEmpty(shippingRequest.PickupAddress) ? "N/A" : shippingRequest.PickupAddress,
+                        PackageId = shippingRequest.PackageId,
+                        DeliveryAddress = string.IsNullOrEmpty(shippingRequest.DeliveryAddress) ? "N/A" : shippingRequest.DeliveryAddress,
+                        DeliveryDate = string.IsNullOrEmpty(shippingRequest.DeliveryDate) ? DateTime.Now.ToString("yyyy-MM-dd") : shippingRequest.DeliveryDate
+                    };
 
-                        // Sikr at alle felter er sat
-                        string customerName = string.IsNullOrEmpty(shippingRequest.CustomerName) ? "N/A" : shippingRequest.CustomerName;
-                        string pickupAddress = string.IsNullOrEmpty(shippingRequest.PickupAddress) ? "N/A" : shippingRequest.PickupAddress;
-                        string deliveryAddress = string.IsNullOrEmpty(shippingRequest.DeliveryAddress) ? "N/A" : shippingRequest.DeliveryAddress;
-                        string date = string.IsNullOrEmpty(shippingRequest.Date) ? DateTime.Now.ToString("yyyy-MM-dd") : shippingRequest.Date;
-
-                        string line = $"{customerName},{pickupAddress},{shippingRequest.PackageId},{deliveryAddress},{date}";
-                        writer.WriteLine(line);
-                    }
+                    await collection.InsertOneAsync(shippingRecord);
+                    _logger.LogInformation("Shipping request saved to MongoDB.");
                 }
                 else
                 {
