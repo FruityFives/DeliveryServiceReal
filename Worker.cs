@@ -21,8 +21,11 @@ public class Worker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Worker started");
+
         var rabbitMQHost = _configuration["RABBITMQ_HOST"] ?? "host not set";
+        var mongoClientHost = _configuration["MongoDB_HOST"] ?? "mongo not set";
         _logger.LogInformation($"RabbitMQ host: {rabbitMQHost}");
+        _logger.LogInformation($"MongoDB url: {mongoClientHost}");
 
         try
         {
@@ -46,13 +49,23 @@ public class Worker : BackgroundService
             {
                 var body = ea.Body.ToArray();
                 var message = Encoding.UTF8.GetString(body);
-                _logger.LogInformation($" [x] Received {message}");
+                _logger.LogInformation($" [x] Received: {message}");
 
-                var shippingRequest = JsonSerializer.Deserialize<ShippingrequestDTO>(message);
-                if (shippingRequest != null)
+                try
                 {
-                    var mongoClient = new MongoClient("mongodb://mongodb:27018");
-                    var database = mongoClient.GetDatabase("ShippingDb");
+                    var shippingRequest = JsonSerializer.Deserialize<ShippingrequestDTO>(message);
+
+                    if (shippingRequest == null)
+                    {
+                        _logger.LogError("Deserialization returned null.");
+                        return;
+                    }
+
+                    _logger.LogInformation($"Deserialized object: {JsonSerializer.Serialize(shippingRequest)}");
+
+                    _logger.LogInformation("Attempting MongoDB connection...");
+                    var mongoDbClient = new MongoClient(mongoClientHost);
+                    var database = mongoDbClient.GetDatabase("ShippingDb");
                     var collection = database.GetCollection<ShippingrequestDTO>("ShippingRequests");
 
                     var shippingRecord = new ShippingrequestDTO
@@ -67,9 +80,17 @@ public class Worker : BackgroundService
                     await collection.InsertOneAsync(shippingRecord);
                     _logger.LogInformation("Shipping request saved to MongoDB.");
                 }
-                else
+                catch (JsonException jsonEx)
                 {
-                    _logger.LogError("Failed to deserialize the message into ShippingrequestDTO");
+                    _logger.LogError(jsonEx, "JSON deserialization failed.");
+                }
+                catch (MongoException mongoEx)
+                {
+                    _logger.LogError(mongoEx, "MongoDB insert failed.");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Unexpected error while processing message.");
                 }
 
                 await Task.CompletedTask;
@@ -84,7 +105,7 @@ public class Worker : BackgroundService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred while connecting to RabbitMQ");
+            _logger.LogError(ex, "An error occurred while setting up RabbitMQ connection.");
         }
 
         _logger.LogInformation("Worker stopped");
